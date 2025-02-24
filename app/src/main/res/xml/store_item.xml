@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <name>Sennheiser Momentum 4</name>
+        <photo>sennM4</photo>
+        <price>350</price>
+        <quantity>10</quantity>
+        <information>ANC,60 Hours Battery, Bluetooth</information>
+    </item>
+</Catalog>
