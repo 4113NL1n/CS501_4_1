@@ -7,4 +7,11 @@
         <quantity>10</quantity>
         <information>ANC,60 Hours Battery, Bluetooth</information>
     </item>
+    <item>
+        <name>Sony XM 5</name>
+        <photo>sontXM5</photo>
+        <price>4000</price>
+        <quantity>1</quantity>
+        <information>ANC,60 Hours Battery, Bluetooth</information>
+    </item>
 </Catalog>
