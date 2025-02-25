@@ -2,16 +2,38 @@
 <Catalog xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <name>Sennheiser Momentum 4</name>
-        <photo>sennM4</photo>
+        <photo>senn_m4</photo>
         <price>350</price>
         <quantity>10</quantity>
         <information>ANC,60 Hours Battery, Bluetooth</information>
     </item>
     <item>
         <name>Sony XM 5</name>
-        <photo>sontXM5</photo>
-        <price>4000</price>
+        <photo>sony_xm5</photo>
+        <price>400</price>
         <quantity>1</quantity>
         <information>ANC,60 Hours Battery, Bluetooth</information>
     </item>
+    <item>
+        <name>Diddy</name>
+        <photo>sony_xm5</photo>
+        <price>1</price>
+        <quantity>100</quantity>
+        <information>ANC,60 Hours Battery, Bluetooth</information>
+    </item>
+    <item>
+        <name>Arizona</name>
+        <photo>sony_xm5</photo>
+        <price>40</price>
+        <quantity>11</quantity>
+        <information>ANC,60 Hours Battery, Bluetooth</information>
+    </item>
+    <item>
+        <name>Asus</name>
+        <photo>sony_xm5</photo>
+        <price>4</price>
+        <quantity>112</quantity>
+        <information>ANC,60 Hours Battery, Bluetooth</information>
+    </item>
+
 </Catalog>
