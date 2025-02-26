@@ -2,12 +2,12 @@ package com.example.bucs501_4_1
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Xml
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,10 +18,12 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bucs501_4_1.ui.theme.BUCS501_4_1Theme
@@ -44,11 +45,10 @@ data class StoreItem(
     val info : String
 )
 data class SizeScreen(
-    val width : Int,
-    val height : Int
+    val width: Int,
+    val height: Int
 )
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -58,8 +58,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
 
                 ) { innerPadding ->
-                    VerticalPane(
-                        name = "Android",
+                    Pane(
                         modifier = Modifier
                             .padding(innerPadding)
                             .windowInsetsPadding(WindowInsets.systemBars)
@@ -71,37 +70,60 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun VerticalPane(name: String, modifier: Modifier = Modifier) {
-//    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-//    val contextConfig = LocalConfiguration.current
-
-
-//    var isProductSelected = rememberSaveable{ mutableStateOf(false)}
+fun Pane( modifier: Modifier = Modifier) {
 //
-//    var currProduct  = rememberSaveable { mutableStateOf(StoreItem("","",0,0,"")) }
+    val currProduct  = rememberSaveable { mutableStateOf<StoreItem?>(null) }
     val size = screenSize()
-//    val width = size.width
-//    val height = size.height
+//
     val contextContext = LocalContext.current
+
+    if(size.width > 600){
+            Row(
+                modifier = modifier.fillMaxSize()
+            ){
+                ShowItemList(modifier.fillMaxSize().weight(1f),contextContext, selectingItem = {currProduct.value = it})
+                ShowDetails(currProduct, modifier.weight(1f))
+            }
+
+    }else{
+        if(currProduct.value == null){
+            ShowItemList(modifier.fillMaxSize(),contextContext, selectingItem = {currProduct.value = it})
+        }else{
+            ShowDetails(currProduct,modifier.fillMaxSize())
+        }
+    }
+
+
+
+
+}
+@Composable
+fun ShowItemList(modifier : Modifier = Modifier, contextContext : Context, selectingItem : (StoreItem) -> Unit){
     val itemInStore = parse(contextContext)
     Column(
-        modifier = modifier.fillMaxWidth().background(color = Color(255,255,255)),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(color = Color(255, 255, 255)),
         horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
+    ) {
         Text(
             text = "Shopping List",
             color = Color(100,10,200),
             fontSize = 40.sp
         )
-
-
         LazyColumn(
-            modifier = modifier.padding(bottom = 10.dp).fillMaxWidth().background(color = Color(255,255,255))
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp)
+                .background(color = Color(255, 255, 255))
         ) {
             items(itemInStore){ item ->
-                Row (
-                    modifier = Modifier.fillMaxSize().clickable {  }.background(color = Color(10,100,100))
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable { selectingItem(item) }
+                        .background(color = Color(255, 255, 255)),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ){
                     Text(
                         text = item.name,
@@ -111,17 +133,49 @@ fun VerticalPane(name: String, modifier: Modifier = Modifier) {
             }
         }
     }
+}
+@Composable
+fun ShowDetails(item : MutableState<StoreItem?>, modifier: Modifier = Modifier){
+        Box(
+            modifier = modifier
+        ){
+            item.value?.let {
+                Column (
+                    modifier = Modifier.fillMaxSize().padding(bottom = 10.dp,top = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Text(
+                        text = it.name
+                    )
+                    Text(
+                        text = it.info
+                    )
+                    Text(
+                        text = it.price.toString()
+                    )
+                    Button(onClick = {item.value = null}){
+                        Text(
+                            text = "GO BACK"
+                        )
+                    }
+                }
+            } ?: run{
 
+                    Text(text = "No items Selected")
+
+            }
+        }
 
 }
 
 @Composable
 fun screenSize() : SizeScreen{
     val configContext = LocalConfiguration.current
-    val width = remember {configContext.screenWidthDp}
-    val height = remember { configContext.screenHeightDp}
+    val width =  remember{configContext.screenWidthDp}
+    val height =  remember{configContext.screenHeightDp}
     return SizeScreen(width,height)
 }
+
 fun parse(context : Context) : List<StoreItem>{
     val parser = context.resources.getXml(R.xml.store_item)
     var eventType = parser.eventType
@@ -153,10 +207,3 @@ fun parse(context : Context) : List<StoreItem>{
     return  itemInStore
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BUCS501_4_1Theme {
-        VerticalPane("Android")
-    }
-}
