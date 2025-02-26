@@ -6,6 +6,7 @@ import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bucs501_4_1.ui.theme.BUCS501_4_1Theme
@@ -101,14 +104,14 @@ fun Pane( modifier: Modifier = Modifier, scope : CoroutineScope, snackbarHostSta
                 modifier
                     .fillMaxSize()
                     .weight(1f),contextContext, selectingItem = {currProduct.value = it})
-            ShowDetails(currProduct, modifier.weight(1f),scope, snackbarHostState,size)
+            ShowDetails(currProduct, modifier.weight(1f),scope, snackbarHostState,size,contextContext)
         }
 
     }else{
         if(currProduct.value == null){
             ShowItemList(modifier.fillMaxSize(),contextContext, selectingItem = {currProduct.value = it})
         }else{
-            ShowDetails(currProduct,modifier.fillMaxSize(),scope, snackbarHostState,size)
+            ShowDetails(currProduct,modifier.fillMaxSize(),scope, snackbarHostState,size,contextContext)
         }
     }
 
@@ -154,7 +157,13 @@ fun ShowItemList(modifier : Modifier = Modifier, contextContext : Context, selec
     }
 }
 @Composable
-fun ShowDetails(item : MutableState<StoreItem?>, modifier: Modifier = Modifier,scope : CoroutineScope, snackbarHostState: SnackbarHostState, sizeScreen: SizeScreen){
+fun ShowDetails(item : MutableState<StoreItem?>,
+                modifier: Modifier = Modifier,
+                scope : CoroutineScope,
+                snackbarHostState: SnackbarHostState,
+                sizeScreen: SizeScreen,
+                context: Context){
+
     Box(
         modifier = modifier
     ){
@@ -165,6 +174,14 @@ fun ShowDetails(item : MutableState<StoreItem?>, modifier: Modifier = Modifier,s
                     .padding(bottom = 10.dp, top = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
+                val id = context.resources.getIdentifier(it.photo,"drawable", context.packageName)
+                Image(
+                    painter = painterResource(
+                        id = id,
+                    ),
+                    contentDescription = "image of item",
+                    modifier = Modifier.size(100.dp)
+                )
                 Text(
                     text = "Name : ${it.name}"
                 )
