@@ -2,6 +2,7 @@ package com.example.bucs501_4_1
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -35,15 +36,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bucs501_4_1.ui.theme.BUCS501_4_1Theme
+import kotlinx.parcelize.Parcelize
 import org.xmlpull.v1.XmlPullParser
 
+@Parcelize
 data class StoreItem(
     val name : String,
     val photo : String,
     val price : Int,
     var quantity : Int,
     val info : String
-)
+) : Parcelable
+
 data class SizeScreen(
     val width: Int,
     val height: Int
@@ -78,12 +82,12 @@ fun Pane( modifier: Modifier = Modifier) {
     val contextContext = LocalContext.current
 
     if(size.width > 600){
-            Row(
-                modifier = modifier.fillMaxSize()
-            ){
-                ShowItemList(modifier.fillMaxSize().weight(1f),contextContext, selectingItem = {currProduct.value = it})
-                ShowDetails(currProduct, modifier.weight(1f))
-            }
+        Row(
+            modifier = modifier.fillMaxSize()
+        ){
+            ShowItemList(modifier.fillMaxSize().weight(1f),contextContext, selectingItem = {currProduct.value = it})
+            ShowDetails(currProduct, modifier.weight(1f))
+        }
 
     }else{
         if(currProduct.value == null){
@@ -136,35 +140,35 @@ fun ShowItemList(modifier : Modifier = Modifier, contextContext : Context, selec
 }
 @Composable
 fun ShowDetails(item : MutableState<StoreItem?>, modifier: Modifier = Modifier){
-        Box(
-            modifier = modifier
-        ){
-            item.value?.let {
-                Column (
-                    modifier = Modifier.fillMaxSize().padding(bottom = 10.dp,top = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
+    Box(
+        modifier = modifier
+    ){
+        item.value?.let {
+            Column (
+                modifier = Modifier.fillMaxSize().padding(bottom = 10.dp,top = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Text(
+                    text = it.name
+                )
+                Text(
+                    text = it.info
+                )
+                Text(
+                    text = it.price.toString()
+                )
+                Button(onClick = {item.value = null}){
                     Text(
-                        text = it.name
+                        text = "GO BACK"
                     )
-                    Text(
-                        text = it.info
-                    )
-                    Text(
-                        text = it.price.toString()
-                    )
-                    Button(onClick = {item.value = null}){
-                        Text(
-                            text = "GO BACK"
-                        )
-                    }
                 }
-            } ?: run{
-
-                    Text(text = "No items Selected")
-
             }
+        } ?: run{
+
+            Text(text = "No items Selected")
+
         }
+    }
 
 }
 
@@ -206,4 +210,3 @@ fun parse(context : Context) : List<StoreItem>{
     }
     return  itemInStore
 }
-
