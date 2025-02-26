@@ -21,12 +21,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bucs501_4_1.ui.theme.BUCS501_4_1Theme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import org.xmlpull.v1.XmlPullParser
 
@@ -58,14 +63,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BUCS501_4_1Theme {
+                val scope = rememberCoroutineScope()
+                val snackbarHostState = remember { SnackbarHostState() }
                 Scaffold(
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarHostState)
+                    },
                     modifier = Modifier.fillMaxSize()
 
                 ) { innerPadding ->
                     Pane(
                         modifier = Modifier
                             .padding(innerPadding)
-                            .windowInsetsPadding(WindowInsets.systemBars)
+                            .windowInsetsPadding(WindowInsets.systemBars),
+                        scope,
+                        snackbarHostState
                     )
                 }
             }
@@ -74,7 +86,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Pane( modifier: Modifier = Modifier) {
+fun Pane( modifier: Modifier = Modifier, scope : CoroutineScope, snackbarHostState: SnackbarHostState ) {
 //
     val currProduct  = rememberSaveable { mutableStateOf<StoreItem?>(null) }
     val size = screenSize()
@@ -85,15 +97,18 @@ fun Pane( modifier: Modifier = Modifier) {
         Row(
             modifier = modifier.fillMaxSize()
         ){
-            ShowItemList(modifier.fillMaxSize().weight(1f),contextContext, selectingItem = {currProduct.value = it})
-            ShowDetails(currProduct, modifier.weight(1f))
+            ShowItemList(
+                modifier
+                    .fillMaxSize()
+                    .weight(1f),contextContext, selectingItem = {currProduct.value = it})
+            ShowDetails(currProduct, modifier.weight(1f),scope, snackbarHostState,size)
         }
 
     }else{
         if(currProduct.value == null){
             ShowItemList(modifier.fillMaxSize(),contextContext, selectingItem = {currProduct.value = it})
         }else{
-            ShowDetails(currProduct,modifier.fillMaxSize())
+            ShowDetails(currProduct,modifier.fillMaxSize(),scope, snackbarHostState,size)
         }
     }
 
@@ -139,28 +154,45 @@ fun ShowItemList(modifier : Modifier = Modifier, contextContext : Context, selec
     }
 }
 @Composable
-fun ShowDetails(item : MutableState<StoreItem?>, modifier: Modifier = Modifier){
+fun ShowDetails(item : MutableState<StoreItem?>, modifier: Modifier = Modifier,scope : CoroutineScope, snackbarHostState: SnackbarHostState, sizeScreen: SizeScreen){
     Box(
         modifier = modifier
     ){
         item.value?.let {
             Column (
-                modifier = Modifier.fillMaxSize().padding(bottom = 10.dp,top = 20.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 10.dp, top = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
                 Text(
-                    text = it.name
+                    text = "Name : ${it.name}"
                 )
                 Text(
-                    text = it.info
+                    text = "Description : ${it.info}"
                 )
                 Text(
-                    text = it.price.toString()
+                    text = " Price : ${it.price}"
                 )
-                Button(onClick = {item.value = null}){
+                Text(
+                    text = "Quantity : ${it.quantity}"
+                )
+                Button(onClick =
+                { scope.launch {
+                    snackbarHostState.showSnackbar("ADD TO WIShLIST")
+                } }
+
+                ){
                     Text(
-                        text = "GO BACK"
+                        text = "ADD TO LIST"
                     )
+                }
+                if(sizeScreen.width <= 600){
+                    Button(onClick = {item.value = null}){
+                        Text(
+                            text = "GO BACK"
+                        )
+                    }
                 }
             }
         } ?: run{
@@ -171,6 +203,8 @@ fun ShowDetails(item : MutableState<StoreItem?>, modifier: Modifier = Modifier){
     }
 
 }
+
+
 
 @Composable
 fun screenSize() : SizeScreen{
